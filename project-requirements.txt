@@ -1,0 +1,6 @@
+-View (ID, NAME, GROUP NUMBER, PHONE NUMBER)
+-Insert Record
+-Update Record
+-Delete Record
+-Search Record
+-Sort Records
