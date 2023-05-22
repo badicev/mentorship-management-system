@@ -39,19 +39,14 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
 
         # Create a QLabel widget for the header image
         header_label = QLabel(self)
-
         # Set the image path
         image_path = "images/logobandı.jpg"
-
         # Create a QPixmap object with the image
         pixmap = QPixmap(image_path)
-
         # Set the pixmap on the QLabel
         header_label.setPixmap(pixmap)
-
         # Set the size and position of the QLabel
         header_label.setGeometry(200, 600, 500, 100)
-
         # Set the aspect ratio policy to maintain the image's aspect ratio
         header_label.setScaledContents(True)
 
@@ -176,26 +171,26 @@ class SearchDialog(QDialog):
         layout.addWidget(self.student_name)
 
         #Create a button
-        button = QPushButton("Bul")
-        button.clicked.connect(self.search)
-        layout.addWidget(button)
+        button_find = QPushButton("Bul")
+        button_find.clicked.connect(self.search)
+        layout.addWidget(button_find)
 
         self.setLayout(layout)
 
-        def search(self):
-            name = self.student_name.text()
-            connection = sqlite3.connect("mentorship.db")
-            cursor = connection.cursor()
-            result = cursor.execute("SELECT * FROM ogrenciler WHERE name = ?", (name,))
-            rows = list(result)
-            print(rows)
-            items = management.table.findItems(name,Qt.MatchFlag.MatchFixedString)
-            for item in items:
-                print(item)
-                management.table.item(item.row(), 1).setSelected(True)
+    def search(self):
+        name = self.student_name.text()
+        connection = sqlite3.connect("mentorship.db")
+        cursor = connection.cursor()
+        result = cursor.execute("SELECT * FROM ogrenciler WHERE İsim = ?", (name,))
+        rows = list(result)
+        print(rows)
+        items = management.table.findItems(name,Qt.MatchFlag.MatchFixedString)
+        for item in items:
+            print(item)
+            management.table.item(item.row(), 1).setSelected(True)
 
-            cursor.close()
-            connection.close()
+        cursor.close()
+        connection.close()
 
 app = QApplication(sys.argv)
 management = MainWindow()
