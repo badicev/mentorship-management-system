@@ -1,8 +1,9 @@
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLabel, QWidget, QGridLayout, \
     QLineEdit, QPushButton, QMainWindow, QTableWidget, QTableWidgetItem, QDialog, \
-    QComboBox
+    QComboBox, QToolBar
 
-from  PyQt6.QtGui import QAction
+from  PyQt6.QtGui import QAction, QIcon, QPixmap
 import sys
 import sqlite3
 
@@ -14,8 +15,9 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
 
         file_menu_item = self.menuBar().addMenu("&Dosya") # add & to specify that is a menu item
         help_menu_item = self.menuBar().addMenu("&Yardım")
+        edit_menu_item = self.menuBar().addMenu("&Edit")
 
-        add_student_action = QAction("Öğrenci ekle", self) #to add sub-menu
+        add_student_action = QAction(QIcon("images/add.png"), "Öğrenci ekle", self) #to add sub-menu
         add_student_action.triggered.connect(self.insert)
         file_menu_item.addAction(add_student_action)
 
@@ -23,12 +25,46 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
         help_menu_item.addAction(about_action)
         #about_action.setMenuRole(QAction.MenuRole.NoRole) #if help menu doesn't show up
 
+        search_action = QAction(QIcon("images/search.png"), "Öğrenci ara", self)  # to add sub-menu
+        edit_menu_item.addAction(search_action)
+        search_action.triggered.connect(self.search)
+
         self.table = QTableWidget()
         self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels(("ID", "İsim", "Grup", "Mentor", "Mentee Telefon", "Mentee E-posta", "Mentor Telefon", "Mentor E-posta")) #tuple
         self.table.verticalHeader().setVisible(False) #to hide original index numbers
         self.setCentralWidget(self.table)
         self.setFixedSize(1000, 800) #To change the default window size
+
+
+        # Create a QLabel widget for the header image
+        header_label = QLabel(self)
+
+        # Set the image path
+        image_path = "images/logobandı.jpg"
+
+        # Create a QPixmap object with the image
+        pixmap = QPixmap(image_path)
+
+        # Set the pixmap on the QLabel
+        header_label.setPixmap(pixmap)
+
+        # Set the size and position of the QLabel
+        header_label.setGeometry(200, 600, 500, 100)
+
+        # Set the aspect ratio policy to maintain the image's aspect ratio
+        header_label.setScaledContents(True)
+
+
+
+        #Create toolbar and toolbar elements
+        toolbar = QToolBar()
+        toolbar.setMovable(True)
+        self.addToolBar(toolbar)
+        toolbar.addAction(add_student_action)
+        toolbar.addAction(search_action)
+
+
 
 
 
@@ -45,6 +81,10 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
 
     def insert(self):
         dialog = InsertDialog()
+        dialog.exec()
+
+    def search(self):
+        dialog = SearchDialog()
         dialog.exec()
 
 
@@ -120,6 +160,42 @@ class InsertDialog(QDialog):
         cursor.close()
         connection.close()
         management.load_data()
+
+
+class SearchDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        #Set window title and size
+        self.setWindowTitle("Mentee veya Mentor Bul")
+        self.setFixedSize(300,300)
+
+        #Create layout and input widget
+        layout = QVBoxLayout()
+        self.student_name = QLineEdit()
+        self.student_name.setPlaceholderText("Mentee İsmi")
+        layout.addWidget(self.student_name)
+
+        #Create a button
+        button = QPushButton("Bul")
+        button.clicked.connect(self.search)
+        layout.addWidget(button)
+
+        self.setLayout(layout)
+
+        def search(self):
+            name = self.student_name.text()
+            connection = sqlite3.connect("mentorship.db")
+            cursor = connection.cursor()
+            result = cursor.execute("SELECT * FROM ogrenciler WHERE name = ?", (name,))
+            rows = list(result)
+            print(rows)
+            items = management.table.findItems(name,Qt.MatchFlag.MatchFixedString)
+            for item in items:
+                print(item)
+                management.table.item(item.row(), 1).setSelected(True)
+
+            cursor.close()
+            connection.close()
 
 app = QApplication(sys.argv)
 management = MainWindow()
