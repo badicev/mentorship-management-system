@@ -112,7 +112,89 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
         dialog.exec()
 
 class EditDialog(QDialog):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Öğrenci Listesini Güncelle")
+        self.setFixedSize(500, 500)
+
+        layout = QVBoxLayout()
+
+        #Get student name from selected row
+        index = management.table.currentRow() #will return integer to store the integer in index variable
+        student_name = management.table.item(index, 1).text()
+
+        #Get id from selected row
+        self.student_id = management.table.item(index, 0).text() #as an attribute of the class
+        #add student name widget
+        self.student_name = QLineEdit(student_name)
+        self.student_name.setPlaceholderText("Mentee İsim")
+        layout.addWidget(self.student_name)
+
+        #add combo box of group numbers
+        group_number = management.table.item(index, 2).text() #local variable
+        self.group_number = QComboBox()
+        available_group_numbers = ["Grup 1","Grup 2", "Grup 3"]
+        self.group_number.addItems(available_group_numbers) #this group_number is a attribute
+        self.group_number.setCurrentText(group_number)
+        layout.addWidget(self.group_number)
+
+        # add mentor name widget
+        mentor_name = management.table.item(index, 3).text()
+        self.mentor_name = QLineEdit(mentor_name)
+        self.mentor_name.setPlaceholderText(" Mentor İsim")
+        layout.addWidget(self.mentor_name)
+
+        # add mentee number widget
+        mentee_number = management.table.item(index, 4).text()
+        self.mentee_number = QLineEdit(mentee_number)
+        self.mentee_number.setPlaceholderText("Mentee Numara")
+        layout.addWidget(self.mentee_number)
+
+        # add mentee e-mail widget
+        mentor_email = management.table.item(index, 5).text()
+        self.mentee_email = QLineEdit(mentor_email)
+        self.mentee_email.setPlaceholderText("Mentee E-posta")
+        layout.addWidget(self.mentee_email)
+
+        # add mentor number widget
+        mentor_number = management.table.item(index, 6).text()
+        self.mentor_number = QLineEdit(mentor_number)
+        self.mentor_number.setPlaceholderText("Mentor Numara")
+        layout.addWidget(self.mentor_number)
+
+        # add mentor e-mail widget
+        mentor_email = management.table.item(index, 7).text()
+        self.mentor_email = QLineEdit(mentor_email)
+        self.mentor_email.setPlaceholderText("Mentor E-posta")
+        layout.addWidget(self.mentor_email)
+
+        #Add a submit button
+        button = QPushButton("Güncelle")
+        button.clicked.connect(self.update_student)
+        layout.addWidget(button)
+
+        self.setLayout(layout)
+
+    def update_student(self):
+        connection = sqlite3.connect("mentorship.db")
+        cursor = connection.cursor()
+        query = "UPDATE ogrenciler SET İsim = ?, Grup = ?, Mentor = ?, [Mentee Telefon] = ?, [Mentee E-posta] = ?, [Mentor Telefon] = ?, [Mentor E-posta] = ? WHERE ID = ?"
+        cursor.execute(query, (self.student_name.text(),
+                               self.group_number.currentText(),
+                               self.mentor_name.text(),
+                               self.mentee_number.text(),
+                               self.mentee_email.text(),
+                               self.mentor_number.text(),
+                               self.mentor_email.text(),
+                               self.student_id))
+
+        connection.commit() #when we have SELECT query we don't have to commit but when we have 'write' operation such as INSERT and UPDATE we have to commit
+        cursor.close()
+        connection.close()
+
+        # Refresh the table
+        management.load_data() #to refresh
+
 
 class DeleteDialog(QDialog):
     pass
