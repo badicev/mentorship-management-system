@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLabel, QWidget, QGridLayout, \
     QLineEdit, QPushButton, QMainWindow, QTableWidget, QTableWidgetItem, QDialog, \
-    QComboBox, QToolBar
+    QComboBox, QToolBar, QStatusBar
 
 from  PyQt6.QtGui import QAction, QIcon, QPixmap
 import sys
@@ -34,7 +34,7 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
         self.table.setHorizontalHeaderLabels(("ID", "İsim", "Grup", "Mentor", "Mentee Telefon", "Mentee E-posta", "Mentor Telefon", "Mentor E-posta")) #tuple
         self.table.verticalHeader().setVisible(False) #to hide original index numbers
         self.setCentralWidget(self.table)
-        self.setFixedSize(1000, 800) #To change the default window size
+        self.setFixedSize(1200, 800) #To change the default window size
 
 
         # Create a QLabel widget for the header image
@@ -46,7 +46,7 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
         # Set the pixmap on the QLabel
         header_label.setPixmap(pixmap)
         # Set the size and position of the QLabel
-        header_label.setGeometry(200, 600, 500, 100)
+        header_label.setGeometry(900, 55, 300, 100)
         # Set the aspect ratio policy to maintain the image's aspect ratio
         header_label.setScaledContents(True)
 
@@ -59,9 +59,30 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
         toolbar.addAction(add_student_action)
         toolbar.addAction(search_action)
 
+        #Create a status bar and status bar elemenets
+        self.statusbar = QStatusBar()
+        self.setStatusBar(self.statusbar)
 
+        hello = QLabel("Umarım iyi bir gün geçiriyorsundur. Sevgiler!")
+        self.statusbar.addWidget(hello)
 
+        #Detect a cell click
+        self.table.cellClicked.connect(self.cell_clicked)
 
+    def cell_clicked(self):
+        edit_button = QPushButton("Düzenle")
+        edit_button.clicked.connect(self.edit)
+
+        delete_button = QPushButton("Sil")
+        delete_button.clicked.connect(self.delete)
+
+        children = self.findChildren(QPushButton)
+        if children:
+            for child in children:
+                self.statusbar.removeWidget(child)
+
+        self.statusbar.addWidget(edit_button)
+        self.statusbar.addWidget(delete_button)
 
     def load_data(self):
         connection = sqlite3.connect("mentorship.db")
@@ -82,8 +103,19 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
         dialog = SearchDialog()
         dialog.exec()
 
+    def edit(self):
+        dialog = EditDialog()
+        dialog.exec()
 
+    def delete(self):
+        dialog = DeleteDialog()
+        dialog.exec()
 
+class EditDialog(QDialog):
+    pass
+
+class DeleteDialog(QDialog):
+    pass
 class InsertDialog(QDialog):
     def __init__(self):
         super().__init__()
