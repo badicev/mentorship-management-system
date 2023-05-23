@@ -15,7 +15,7 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
 
         file_menu_item = self.menuBar().addMenu("&Dosya") # add & to specify that is a menu item
         help_menu_item = self.menuBar().addMenu("&Yardım")
-        edit_menu_item = self.menuBar().addMenu("&Edit")
+        edit_menu_item = self.menuBar().addMenu("&Düzenle")
 
         add_student_action = QAction(QIcon("images/add.png"), "Öğrenci ekle", self) #to add sub-menu
         add_student_action.triggered.connect(self.insert)
@@ -24,6 +24,7 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
         about_action = QAction("Hakkında", self) #self will connect this QAction to the class
         help_menu_item.addAction(about_action)
         #about_action.setMenuRole(QAction.MenuRole.NoRole) #if help menu doesn't show up
+        about_action.triggered.connect(self.about)
 
         search_action = QAction(QIcon("images/search.png"), "Öğrenci ara", self)  # to add sub-menu
         edit_menu_item.addAction(search_action)
@@ -110,6 +111,29 @@ class MainWindow(QMainWindow): #QMainWindow allows us to add a menu bar and a to
     def delete(self):
         dialog = DeleteDialog()
         dialog.exec()
+
+    def about(self):
+        dialog = AboutDialog()
+        dialog.exec()
+
+class AboutDialog(QMessageBox): #it can inherit from QMessageBox since it will be simple
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Hakkında")
+        content = """
+                <html>
+                <body>
+                    <h3>SistersLab Mentorluk Takip Sistemi</h3>
+                    <p>
+                    SistersLab Mentorluk Takip Sistemi, SistersLab tarafından sunulan mentorluk programını kolaylaştırmak ve geliştirmek için tasarlanmış kapsamlı bir projedir. 
+                    Bu proje, mentiler ve mentorlar arasındaki etkileşimleri izlemek ve yönetmek için merkezi bir platform sağlamayı hedeflemektedir, böylece mentorluk deneyimi 
+                    sorunsuz ve verimli bir şekilde gerçekleşebilir.
+                    </p>
+                </body>
+                </html>
+                """
+
+        self.setText(content)
 
 class EditDialog(QDialog):
     def __init__(self):
