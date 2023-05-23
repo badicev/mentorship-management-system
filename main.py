@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLabel, QWidget, QGridLayout, \
     QLineEdit, QPushButton, QMainWindow, QTableWidget, QTableWidgetItem, QDialog, \
-    QComboBox, QToolBar, QStatusBar
+    QComboBox, QToolBar, QStatusBar, QMessageBox
 
 from  PyQt6.QtGui import QAction, QIcon, QPixmap
 import sys
@@ -197,7 +197,44 @@ class EditDialog(QDialog):
 
 
 class DeleteDialog(QDialog):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Mentee Verisini Sil")
+
+
+        layout = QGridLayout()
+        confirmation = QLabel("Silmek istediğinizden emin misiniz?")
+        yes = QPushButton("Evet")
+        no = QPushButton("Hayır")
+
+        layout.addWidget(confirmation, 0, 0, 1, 2)
+        layout.addWidget(yes, 1, 0) #second row, first column
+        layout.addWidget(no, 1, 1) #second row, second column
+        self.setLayout(layout)
+
+        yes.clicked.connect(self.delete_student)
+
+    def delete_student(self): #for sql query
+        #Get index and student id from selected row
+        index = management.table.currentRow()
+        student_id = management.table.item(index, 0).text()
+
+        connection = sqlite3.connect("mentorship.db")
+        cursor = connection.cursor()
+        cursor.execute("DELETE from ogrenciler WHERE ID = ?", (student_id,)) #if we don't have a comma after student_id it won't be accepted as a tuple
+        connection.commit()
+        cursor.close()
+        connection.close()
+        management.load_data()
+
+        self.close()
+
+        confirmation_widget = QMessageBox() #this is a child of QDialogBox for simple messages
+        confirmation_widget.setWindowTitle("Başarılı")
+        confirmation_widget.setText("Mentee verisi başarıyla silindi.")
+        confirmation_widget.exec()
+
+
 class InsertDialog(QDialog):
     def __init__(self):
         super().__init__()
